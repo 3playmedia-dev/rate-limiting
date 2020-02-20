@@ -94,9 +94,9 @@ class RateLimiting
   end
 
   def allowed?(request)
-    logger.debug "Rate Limit REQ: #{request.host} #{request.path} #{request.params} #{request.url}"
+    logger.debug "Rate Limit REQ: #{request.host} #{request.path} #{request.params} #{request.url}" if Rails.env.development?
     if rule = find_matching_rule(request)
-      logger.info "Rate Limit MATCH: #{request.url}"
+      logger.info "Rate Limit MATCH: #{request.path}" if Rails.env.development?
       apply_rule(request, rule)
     else
       true
@@ -105,7 +105,7 @@ class RateLimiting
 
   def find_matching_rule(request)
     @rules.each do |rule|
-      logger.debug "Rate Limit RULE: #{rule.inspect}"
+      logger.debug "Rate Limit RULE: #{rule.inspect}" if Rails.env.development?
       match_host = request.host =~ rule.match
       match_path = request.path =~ rule.match
       match_url = request.url =~ rule.match
@@ -119,7 +119,7 @@ class RateLimiting
     key = rule.get_key(request)
     if cache_has?(key)
       record = cache_get(key)
-      logger.info "Rate Limit ENTRY #{request.url}: '#{key}' => #{record}"
+      logger.info "Rate Limit ENTRY #{request.path}: '#{key}' => #{record}"
       if (reset = Time.at(record.split(':')[1].to_i)) > Time.now
         # rule hasn't been reset yet
         times = record.split(':')[0].to_i
@@ -128,7 +128,7 @@ class RateLimiting
           # within rate limit
           response = get_header(times + 1, reset, rule.limit)
         else
-          logger.info "Rate Limit REJECT #{request.url}: request rejected."
+          logger.info "Rate Limit REJECT #{request.path}: request rejected."
           return false
         end
       else
