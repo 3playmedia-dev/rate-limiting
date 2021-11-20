@@ -1,3 +1,7 @@
+[![Build status](https://img.shields.io/travis/iugu/rate-limiting.svg)](https://travis-ci.org/iugu/rate-limiting)
+[![Gem version](https://img.shields.io/gem/v/rate-limiting.svg)](https://rubygems.org/gems/rate-limiting)
+[![Downloads](https://img.shields.io/gem/dt/rate-limiting.svg)](https://rubygems.org/gems/rate-limiting)
+
 Rate Limiting
 ===============
 
@@ -101,7 +105,7 @@ By default, the record store used to keep track of request matches is a hash sto
 
 Set the cache by calling `set_cache` in the configuration block
 ```
-r.set_store(Rails.cache)
+r.set_cache(Rails.cache)
 ```
 
 Any traditional store will work, including Memcache, Redis, or an ActiveSupport::Cache::Store. Which is the best choice is an application specific decision, but a fast, shared store is highly recommended.
@@ -131,3 +135,7 @@ r.set_cache(store) if store.present?
 Rails.logger.debug "=> Rate Limiting Store Configured: #{r.cache}"
 ```
 
+Running Tests
+----------------
+
+bundle exec rspec spec
