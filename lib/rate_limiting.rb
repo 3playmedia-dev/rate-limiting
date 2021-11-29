@@ -13,6 +13,8 @@ class RateLimiting
 
   def call(env)
     request = Rack::Request.new(env)
+    respond(env, limit_header)
+    return
     @logger = env['rack.logger']
     binding.pry_remote
     (limit_header = allowed?(request)) ? respond(env, limit_header) : rate_limit_exceeded(env['HTTP_ACCEPT'])
@@ -95,7 +97,6 @@ class RateLimiting
   end
 
   def allowed?(request)
-    logger.debug "Rate Limit REQ: #{request.host} #{request.path} #{request.params} #{request.url}" if Rails.env.development?
     if rule = find_matching_rule(request)
       logger.info "Rate Limit MATCH: #{request.path}" if Rails.env.development?
       apply_rule(request, rule)
@@ -106,7 +107,6 @@ class RateLimiting
 
   def find_matching_rule(request)
     @rules.each do |rule|
-      logger.debug "Rate Limit RULE: #{rule.inspect}" if Rails.env.development?
       match_host = request.host =~ rule.match
       match_path = request.path =~ rule.match
       match_url = request.url =~ rule.match
