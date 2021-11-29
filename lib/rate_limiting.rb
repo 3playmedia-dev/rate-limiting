@@ -14,6 +14,7 @@ class RateLimiting
   def call(env)
     request = Rack::Request.new(env)
     @logger = env['rack.logger']
+    binding.pry_remote
     (limit_header = allowed?(request)) ? respond(env, limit_header) : rate_limit_exceeded(env['HTTP_ACCEPT'])
   end
 
